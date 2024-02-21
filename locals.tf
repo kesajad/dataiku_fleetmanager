@@ -2,7 +2,7 @@ locals {
   bootscript = <<-EOT
     #!/bin/bash
     export FM_CLOUD=AZURE
-    subscription_id = "6a72d19e-fd0c-4dfd-89d9-c19148383d91"
+    subscription_id = ${data.azurerm_client_config.current.subscription_id}
     export FM_SERVER_CIDR="$(curl -H Metadata:true "http://169.254.169.254/metadata/instance/network/interface/0/ipv4/subnet/0/address?api-version=2017-04-02&format=text")/$(curl -H Metadata:true "http://169.254.169.254/metadata/instance/network/interface/0/ipv4/subnet/0/prefix?api-version=2017-04-02&format=text")"
     export FM_SERVER_REGION=${var.location}
     export FM_SERVER_VPCID=${data.azurerm_virtual_network.vnet.id}
@@ -15,4 +15,5 @@ locals {
     /opt/dataiku/bin/fm-userdata.sh
   EOT
   custom_data = format(local.bootscript)
+  resource_group = data.azurerm_resource_group.rg.name
 }

@@ -1,23 +1,18 @@
-resource "azurerm_resource_group" "rg" {
-  name     = "rg-${var.env}-stag"
-  location = var.location
-}
-
 resource "azurerm_user_assigned_identity" "fm_identitiy" {
   location            = var.location
   name                = "uai-${var.env}-fm"
-  resource_group_name = azurerm_resource_group.rg.name
+  resource_group_name = local.resource_group
 }
 
 resource "azurerm_user_assigned_identity" "instance_identitiy" {
   location            = var.location
   name                = "uai-${var.env}-instance"
-  resource_group_name = azurerm_resource_group.rg.name
+  resource_group_name = local.resource_group
 }
 
 resource "azurerm_public_ip" "pub_ip" {
   name                = "pip-${var.env}"
-  resource_group_name = azurerm_resource_group.rg.name
+  resource_group_name = local.resource_group
   location            = var.location
   allocation_method   = "Dynamic"
 }
@@ -25,13 +20,13 @@ resource "azurerm_public_ip" "pub_ip" {
 resource "azurerm_network_security_group" "nsg" {
   name                = "allow-${var.env}"
   location            = var.location
-  resource_group_name = azurerm_resource_group.rg.name
+  resource_group_name = local.resource_group
 }
 
 resource "azurerm_network_interface" "pub_nic" {
   name                = "nic-${var.env}-pub"
   location            = var.location
-  resource_group_name = azurerm_resource_group.rg.name
+  resource_group_name = local.resource_group
 
   ip_configuration {
     name                          = "ipconfig1"
@@ -44,7 +39,7 @@ resource "azurerm_network_interface" "pub_nic" {
 resource "azurerm_network_interface" "priv_nic" {
   name                = "nic-${var.env}-priv"
   location            = var.location
-  resource_group_name = azurerm_resource_group.rg.name
+  resource_group_name = local.resource_group
 
   ip_configuration {
     name                          = "internal"
@@ -64,13 +59,13 @@ resource "azurerm_network_security_rule" "nsr" {
   source_address_prefix       = "0.0.0.0/0"
   destination_address_prefix  = "VirtualNetwork"
   network_security_group_name = azurerm_network_security_group.nsg.name
-  resource_group_name         = azurerm_resource_group.rg.name
+  resource_group_name         = local.resource_group
 }
 
 resource "azurerm_managed_disk" "data_disk" {
   name                 = "datadisk-${var.env}"
   location             = var.location
-  resource_group_name  = azurerm_resource_group.rg.name
+  resource_group_name  = local.resource_group
   storage_account_type = "Standard_LRS"
   create_option        = "Empty"
   disk_size_gb         = 128
@@ -79,7 +74,7 @@ resource "azurerm_managed_disk" "data_disk" {
 resource "azurerm_virtual_machine" "fm_vm" {
   name                  = "vm-${var.env}"
   location              = var.location
-  resource_group_name   = azurerm_resource_group.rg.name
+  resource_group_name   = local.resource_group
   network_interface_ids = [azurerm_network_interface.pub_nic.id]
   vm_size               = "Standard_DS1_v2"
 

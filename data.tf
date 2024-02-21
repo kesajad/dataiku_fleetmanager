@@ -1,5 +1,8 @@
 data "azurerm_client_config" "current" {}
 
+data "azurerm_resource_group" "rg" {
+  name = "rg-${var.env}-stag"
+}
 data "azurerm_virtual_network" "vnet" {
   name                = "vnet-${var.env}-stag"
   resource_group_name = azurerm_resource_group.rg.name
