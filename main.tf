@@ -77,6 +77,7 @@ resource "azurerm_virtual_machine" "fm_vm" {
   resource_group_name   = local.resource_group
   network_interface_ids = [azurerm_network_interface.pub_nic.id]
   vm_size               = "Standard_DS1_v2"
+  delete_os_disk_on_termination = true
 
   identity {
     type         = "UserAssigned"
