@@ -25,19 +25,20 @@ data "azurerm_key_vault_secret" "kv_secret_pubkey" {
 }
 
 
-output "vault_uri" {
-  value = data.azurerm_key_vault.kv.vault_uri
-}
+# output "vault_uri" {
+#   value = data.azurerm_key_vault.kv.vault_uri
+# }
 
-output "virtual_network_id" {
-  value = data.azurerm_virtual_network.vnet.id
-}
+# output "virtual_network_id" {
+#   value = data.azurerm_virtual_network.vnet.id
+# }
 
-output "subnet_id" {
-  value = data.azurerm_subnet.snet.id
-}
+# output "subnet_id" {
 
-output "secret_value" {
-  value     = data.azurerm_key_vault_secret.kv_secret_pubkey.value
-  sensitive = true
-}
+#   value = data.azurerm_subnet.snet.id
+# }
+
+# output "secret_value" {
+#   value     = data.azurerm_key_vault_secret.kv_secret_pubkey.value
+#   sensitive = true
+# }

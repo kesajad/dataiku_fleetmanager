@@ -10,6 +10,12 @@ resource "azurerm_user_assigned_identity" "instance_identitiy" {
   resource_group_name = local.resource_group
 }
 
+resource "azurerm_role_assignment" "iam_contributor" {
+  scope = data.azurerm_resource_group.rg.id
+  role_definition_name = "Contributor"
+  principal_id = azurerm_user_assigned_identity.fm_identitiy.principal_id
+}
+
 resource "azurerm_public_ip" "pub_ip" {
   name                = "pip-${var.env}"
   resource_group_name = local.resource_group
@@ -18,7 +24,7 @@ resource "azurerm_public_ip" "pub_ip" {
 }
 
 resource "azurerm_network_security_group" "nsg" {
-  name                = "allow-${var.env}"
+  name                = "nsg-${var.env}"
   location            = var.location
   resource_group_name = local.resource_group
 }
@@ -75,7 +81,7 @@ resource "azurerm_virtual_machine" "fm_vm" {
   name                  = "vm-${var.env}"
   location              = var.location
   resource_group_name   = local.resource_group
-  network_interface_ids = [azurerm_network_interface.pub_nic.id]
+  network_interface_ids = [azurerm_network_interface.priv_nic.id]
   vm_size               = "Standard_DS1_v2"
   delete_os_disk_on_termination = true
 
@@ -120,4 +126,29 @@ resource "azurerm_virtual_machine" "fm_vm" {
 
   depends_on = [azurerm_managed_disk.data_disk]
 
+}
+
+resource "azurerm_windows_virtual_machine" "bastion" {
+  name                = "vm-bastion-${var.env}"
+  resource_group_name = local.resource_group
+  location            = var.location
+  size                = "Standard_F2"
+  computer_name = "Bastion"
+  admin_username      = "adminuser"
+  admin_password      = "P@$$w0rd1234!"
+  network_interface_ids = [
+    azurerm_network_interface.pub_nic.id,
+  ]
+
+  os_disk {
+    caching              = "ReadWrite"
+    storage_account_type = "Standard_LRS"
+  }
+
+  source_image_reference {
+    publisher = "MicrosoftWindowsServer"
+    offer     = "WindowsServer"
+    sku       = "2016-Datacenter"
+    version   = "latest"
+  }
 }
